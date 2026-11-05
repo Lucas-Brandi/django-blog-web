@@ -1,7 +1,13 @@
-import './App.css';
+import { RouterProvider } from 'react-router-dom';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { router } from '@/routes';
 
 function App() {
-  return <></>;
+  return (
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
+  );
 }
 
 export default App;
