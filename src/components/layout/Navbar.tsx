@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { LogOut, Menu, User } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { BRAND_NAME, NAV_LINKS } from '@/lib/navigation';
@@ -53,9 +54,21 @@ function getInitials(username: string): string {
   return username.slice(0, 2).toUpperCase();
 }
 
+/** Ação de logout compartilhada: revoga a sessão, avisa e volta para a home. */
+function useLogout() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  return async () => {
+    await logout();
+    toast.success('Você saiu da sua conta.');
+    navigate('/', { replace: true });
+  };
+}
+
 /** Menu de perfil do usuário autenticado (avatar + dropdown). */
 function UserMenu() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const handleLogout = useLogout();
   if (!user) return null;
 
   return (
@@ -83,7 +96,7 @@ function UserMenu() {
           <User />
           Meu perfil
         </DropdownMenuItem>
-        <DropdownMenuItem variant="destructive" onClick={logout}>
+        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
           <LogOut />
           Sair
         </DropdownMenuItem>
@@ -108,7 +121,8 @@ function GuestActions() {
 
 /** Menu mobile colapsável, com os links e as ações de conta. */
 function MobileMenu() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const handleLogout = useLogout();
   const [open, setOpen] = useState(false);
 
   return (
@@ -169,7 +183,7 @@ function MobileMenu() {
                   <Button
                     variant="destructive"
                     className="justify-start"
-                    onClick={logout}
+                    onClick={handleLogout}
                   />
                 }
               >
