@@ -10,7 +10,8 @@ type HealthState =
 
 /**
  * Página inicial. Faz uma chamada a /api/v1/health/ para validar a conexão
- * com a API (critério de aceite da M10) e avisa o resultado por toast (M11).
+ * com a API (critério de aceite da M10). Só avisa por toast quando a conexão
+ * falha; o sucesso aparece apenas no quadro de status.
  */
 export default function Home() {
   const [health, setHealth] = useState<HealthState>({ status: 'loading' });
@@ -23,10 +24,6 @@ export default function Home() {
       .then((res) => {
         if (!active) return;
         setHealth({ status: 'ok', value: res.status });
-        if (!notified.current) {
-          notified.current = true;
-          toast.success('API conectada com sucesso.');
-        }
       })
       .catch((err: ApiError) => {
         if (!active) return;

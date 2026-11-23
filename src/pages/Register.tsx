@@ -56,7 +56,9 @@ export default function Register() {
         password,
         password2,
       });
-      toast.success('Conta criada. Faça login para continuar.');
+      toast.success('Conta criada. Faça login para continuar.', {
+        duration: 2000,
+      });
       navigate('/login', { replace: true });
     } catch (err) {
       setErrors(getFieldErrors(err));
