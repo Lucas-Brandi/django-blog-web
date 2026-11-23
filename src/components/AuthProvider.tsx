@@ -13,18 +13,40 @@ import {
   type StoredTokens,
 } from '@/lib/tokenStorage';
 
+/**
+ * Acrescenta ?v=<versão> à URL da foto. O backend sobrescreve o arquivo quando
+ * o nome se repete e devolve a mesma URL; sem isso, o navegador mostraria a
+ * foto antiga do cache depois de uma troca.
+ */
+function withVersion(url: string, version: number): string {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    parsed.searchParams.set('v', String(version));
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 /** Converte o perfil da API no usuário usado pela UI. */
-function toAuthUser(profile: {
-  username: string;
-  email: string;
-  bio: string;
-  image_url: string;
-}): AuthUser {
+function toAuthUser(
+  profile: {
+    username: string;
+    email: string;
+    bio: string;
+    image_url: string;
+  },
+  imageVersion?: number,
+): AuthUser {
+  const imageUrl = profile.image_url || undefined;
   return {
     username: profile.username,
     email: profile.email,
     bio: profile.bio,
-    imageUrl: profile.image_url || undefined,
+    imageUrl:
+      imageUrl && imageVersion !== undefined
+        ? withVersion(imageUrl, imageVersion)
+        : imageUrl,
   };
 }
 
@@ -80,9 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [doRefresh]);
 
+  // Chamado depois de login e de edições do perfil: a foto pode ter mudado
+  // sem mudar de URL, então marcamos uma versão nova.
   const refreshUser = useCallback(async () => {
     const profile = await getMe();
-    setUser(toAuthUser(profile));
+    setUser(toAuthUser(profile, Date.now()));
   }, []);
 
   // Restaura a sessão persistida no primeiro carregamento.
