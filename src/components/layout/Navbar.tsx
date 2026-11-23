@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -90,7 +91,10 @@ function UserMenu() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-44">
-        <DropdownMenuLabel>{user.username}</DropdownMenuLabel>
+        {/* No Base UI, o GroupLabel só funciona dentro de um Menu.Group. */}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{user.username}</DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link to="/perfil" />}>
           <User />

@@ -50,7 +50,7 @@ export default function Login() {
     setSubmitting(true);
     try {
       await login(username.trim(), password);
-      toast.success('Login realizado com sucesso.');
+      toast.success('Login realizado com sucesso.', { duration: 2000 });
       navigate(from, { replace: true });
     } catch (err) {
       setErrors(getFieldErrors(err));
