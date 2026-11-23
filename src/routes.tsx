@@ -9,6 +9,8 @@ import PasswordResetRequest from '@/pages/PasswordResetRequest';
 import PasswordResetConfirm from '@/pages/PasswordResetConfirm';
 import PasswordResetComplete from '@/pages/PasswordResetComplete';
 import Profile from '@/pages/Profile';
+import PostDetail from '@/pages/PostDetail';
+import PostForm from '@/pages/PostForm';
 import NotFound from '@/pages/NotFound';
 
 export const router = createBrowserRouter([
@@ -25,6 +27,12 @@ export const router = createBrowserRouter([
         path: '/sobre',
         element: <About />,
         handle: { title: 'Sobre' },
+      },
+      {
+        // Leitura de posts é pública (D2).
+        path: '/posts/:id',
+        element: <PostDetail />,
+        handle: { title: 'Post' },
       },
       {
         path: '/login',
@@ -59,6 +67,17 @@ export const router = createBrowserRouter([
             path: '/perfil',
             element: <Profile />,
             handle: { title: 'Meu perfil' },
+          },
+          // Criar e editar post exigem login (só o autor edita).
+          {
+            path: '/posts/new',
+            element: <PostForm />,
+            handle: { title: 'Novo post' },
+          },
+          {
+            path: '/posts/:id/edit',
+            element: <PostForm />,
+            handle: { title: 'Editar post' },
           },
         ],
       },
