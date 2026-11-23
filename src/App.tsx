@@ -1,11 +1,14 @@
 import { RouterProvider } from 'react-router-dom';
+import { AuthProvider } from '@/components/AuthProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { router } from '@/routes';
 
 function App() {
   return (
     <ErrorBoundary>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

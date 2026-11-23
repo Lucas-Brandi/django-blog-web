@@ -209,7 +209,22 @@ chore: atualiza dependências
 
 O backend (`django-blog`) é um repositório separado. Os dois sobem juntos, com o PostgreSQL, pelo compose da pasta `blog-stack`.
 
-> **Importante:** o backend atual renderiza páginas HTML com templates do Django e **não expõe uma API JSON**. A `VITE_API_URL` já está preparada, mas o front só conseguirá buscar dados quando o backend ganhar endpoints (por exemplo, com o Django REST Framework) e liberar a origem do front por CORS (por exemplo, com `django-cors-headers`, permitindo `http://localhost:5173`).
+O backend expõe a **API REST em JSON** com Django REST Framework, sob o prefixo `/api/v1/`, e autentica por **JWT (Bearer)** com `rest_framework_simplejwt`. A origem do front já é liberada por CORS (`http://localhost:5173`). O cliente HTTP do front (`src/services/http.ts`) monta a baseURL como `${VITE_API_URL}/api/v1`.
+
+Endpoints consumidos pelas telas de usuário (M12–M14):
+
+| Fluxo | Método e rota |
+|---|---|
+| Health check | `GET /api/v1/health/` |
+| Cadastro | `POST /api/v1/auth/register/` |
+| Login (par de tokens) | `POST /api/v1/auth/login/` |
+| Renovar access token | `POST /api/v1/auth/refresh/` |
+| Logout (revoga refresh) | `POST /api/v1/auth/logout/` |
+| Solicitar reset de senha | `POST /api/v1/auth/password-reset/` |
+| Confirmar reset de senha | `POST /api/v1/auth/password-reset/confirm/` |
+| Perfil do usuário atual | `GET`/`PATCH /api/v1/users/me/` |
+
+A documentação interativa (Swagger UI) fica em `http://localhost:8000/api/docs/`. No fluxo de recuperação de senha em desenvolvimento, o e-mail com o link é impresso em `docker compose logs backend`.
 
 Ao rodar a stack completa:
 

@@ -1,49 +1,49 @@
+import { createContext, useContext } from 'react';
+
 /**
- * Estado de autenticação TEMPORÁRIO.
+ * Estado de autenticação da aplicação (M12).
  *
- * TODO(M12): a autenticação de verdade (login, logout, token e dados do
- * usuário) chega na M12. Este arquivo é o ÚNICO ponto que a navbar usa para
- * saber se há um usuário logado. Quando a M12 existir, troque a implementação
- * de `useAuth` por um hook ligado ao contexto/serviço real de autenticação e
- * remova o estado simulado abaixo. A interface pública (`AuthUser`, `AuthState`
- * e `useAuth`) deve ser mantida para não quebrar os componentes de layout.
+ * A interface pública (AuthUser, AuthState, useAuth) é a mesma que os
+ * componentes de layout consomem. A implementação real vive no AuthProvider
+ * (`src/components/AuthProvider.tsx`); aqui ficam apenas o contexto e o hook.
  */
 
 export interface AuthUser {
   /** Nome exibido na navbar e usado no fallback do avatar. */
   username: string;
+  /** E-mail do usuário autenticado. */
+  email: string;
+  /** Biografia do perfil (pode ser vazia). */
+  bio: string;
   /** URL da foto de perfil. Opcional: sem ela, mostramos as iniciais. */
   imageUrl?: string;
 }
 
 export interface AuthState {
+  /** true quando há um usuário com sessão válida carregada. */
   isAuthenticated: boolean;
+  /** Dados do usuário atual, ou null quando anônimo. */
   user: AuthUser | null;
-  /** Placeholder de logout. TODO(M12): ligar ao serviço real. */
-  logout: () => void;
+  /**
+   * true enquanto a sessão persistida está sendo restaurada no primeiro
+   * carregamento. Rotas protegidas aguardam isto antes de redirecionar.
+   */
+  isLoading: boolean;
+  /** Faz login e carrega o usuário. Lança ApiError em caso de falha. */
+  login: (username: string, password: string) => Promise<void>;
+  /** Revoga o refresh token (best-effort) e limpa o estado local. */
+  logout: () => Promise<void>;
+  /** Recarrega os dados do usuário a partir de GET /users/me/. */
+  refreshUser: () => Promise<void>;
 }
 
-/**
- * Enquanto a M12 não existe, alterne este valor para visualizar os dois
- * estados da navbar (autenticado e anônimo). Mantido isolado de propósito.
- */
-const MOCK_IS_AUTHENTICATED = false;
+export const AuthContext = createContext<AuthState | null>(null);
 
-const MOCK_USER: AuthUser = {
-  username: 'usuario',
-};
-
-/**
- * Hook de acesso ao estado de autenticação.
- *
- * TODO(M12): substituir o corpo por leitura do estado real de autenticação.
- */
+/** Acesso ao estado de autenticação. Deve estar dentro de <AuthProvider>. */
 export function useAuth(): AuthState {
-  return {
-    isAuthenticated: MOCK_IS_AUTHENTICATED,
-    user: MOCK_IS_AUTHENTICATED ? MOCK_USER : null,
-    logout: () => {
-      // TODO(M12): chamar o endpoint de logout e limpar o token.
-    },
-  };
+  const ctx = useContext(AuthContext);
+  if (ctx === null) {
+    throw new Error('useAuth precisa estar dentro de <AuthProvider>.');
+  }
+  return ctx;
 }
