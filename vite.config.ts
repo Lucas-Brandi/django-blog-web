@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -7,12 +8,19 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   server: {
     host: true,
     port: 5173,
     watch: { usePolling: true },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    css: false,
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });
