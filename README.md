@@ -179,6 +179,24 @@ docker compose --profile prod up --build web-prod
 
 Acesse **http://localhost:8080**. A `VITE_API_URL` é **embutida no build**, então, se ela mudar, rode o comando novamente com `--build`.
 
+## Deploy na Vercel
+
+O front é um SPA estático: a Vercel roda `npm run build` e serve o `dist/`. A configuração fica no `vercel.json`:
+
+- **`framework: vite`**, `buildCommand`, `outputDirectory` e `installCommand` explícitos.
+- **Rewrite de SPA**: qualquer rota sem extensão de arquivo (ex.: `/login`, `/posts/123`) cai no `index.html`, para que o React Router assuma o roteamento. Sem isso, recarregar uma rota interna daria 404. Os caminhos sob `/assets/` e os arquivos com extensão continuam sendo servidos como estáticos.
+- **Cache dos assets**: os arquivos em `/assets/` têm nome com hash, então recebem `Cache-Control` de um ano, imutável.
+
+Variáveis de ambiente no painel da Vercel (**Project → Settings → Environment Variables**):
+
+| Variável | Valor | Observação |
+|---|---|---|
+| `VITE_API_URL` | `https://django-blog-mu.vercel.app` | URL do backend, **sem** barra no final e **sem** `/api/v1` (o cliente HTTP acrescenta o prefixo) |
+
+Como `VITE_API_URL` é embutida no build, qualquer mudança no valor exige um novo deploy para ter efeito.
+
+> **CORS:** o backend precisa liberar a origem do front em produção (o domínio `*.vercel.app` do deploy). Sem isso, as chamadas à API falham com erro de rede no navegador. O ajuste é feito no repositório do backend (`django-blog`).
+
 ### Windows e macOS
 
 O Docker nesses sistemas não repassa eventos de arquivo para o container, por isso `VITE_USE_POLLING=true` é necessário para o hot reload funcionar. No `vite.config.ts`, a opção `server.watch.usePolling` deve ler essa variável:
