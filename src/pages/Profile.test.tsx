@@ -40,6 +40,7 @@ function makeAuthState(user: AuthUser | null = baseUser): AuthState {
     user,
     isLoading: false,
     login: vi.fn().mockResolvedValue(undefined),
+    register: vi.fn().mockResolvedValue(undefined),
     logout: vi.fn().mockResolvedValue(undefined),
     refreshUser: vi.fn().mockResolvedValue(undefined),
   };

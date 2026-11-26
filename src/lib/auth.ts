@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import type { RegisterPayload } from '@/services/auth';
 
 /**
  * Estado de autenticação da aplicação (M12).
@@ -31,6 +32,11 @@ export interface AuthState {
   isLoading: boolean;
   /** Faz login e carrega o usuário. Lança ApiError em caso de falha. */
   login: (username: string, password: string) => Promise<void>;
+  /**
+   * Cadastra o usuário e já o deixa logado (o backend devolve os tokens no
+   * register). Lança ApiError em caso de falha.
+   */
+  register: (payload: RegisterPayload) => Promise<void>;
   /** Revoga o refresh token (best-effort) e limpa o estado local. */
   logout: () => Promise<void>;
   /** Recarrega os dados do usuário a partir de GET /users/me/. */

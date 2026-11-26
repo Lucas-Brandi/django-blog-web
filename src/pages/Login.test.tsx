@@ -34,6 +34,7 @@ function makeAuthState(overrides: Partial<AuthState> = {}): AuthState {
     user: null,
     isLoading: false,
     login: vi.fn().mockResolvedValue(undefined),
+    register: vi.fn().mockResolvedValue(undefined),
     logout: vi.fn().mockResolvedValue(undefined),
     refreshUser: vi.fn().mockResolvedValue(undefined),
     ...overrides,
