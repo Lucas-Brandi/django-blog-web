@@ -133,19 +133,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [clearSession]);
 
-  const login = useCallback(
-    async (username: string, password: string) => {
-      const pair = await authApi.login({ username, password });
+  // Aplica um par de tokens recém-obtido e carrega o perfil. Se o perfil não
+  // carregar, desfaz a sessão para não deixar tokens órfãos. Reusado por login
+  // e register, que entram pela mesma porta.
+  const startSession = useCallback(
+    async (pair: StoredTokens) => {
       applyTokens(pair);
       try {
         await refreshUser();
       } catch (err) {
-        // Login ok, mas não foi possível carregar o perfil: desfaz a sessão.
         clearSession();
         throw err;
       }
     },
     [applyTokens, clearSession, refreshUser],
+  );
+
+  const login = useCallback(
+    async (username: string, password: string) => {
+      const pair = await authApi.login({ username, password });
+      await startSession(pair);
+    },
+    [startSession],
+  );
+
+  // Cadastro: o backend já devolve os tokens, então entramos pelo mesmo
+  // caminho do login e o usuário fica logado sem passar pela tela de login.
+  const register = useCallback(
+    async (payload: authApi.RegisterPayload) => {
+      const result = await authApi.register(payload);
+      await startSession({ access: result.access, refresh: result.refresh });
+    },
+    [startSession],
   );
 
   const logout = useCallback(async () => {
@@ -166,10 +185,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isLoading,
       login,
+      register,
       logout,
       refreshUser,
     }),
-    [user, isLoading, login, logout, refreshUser],
+    [user, isLoading, login, register, logout, refreshUser],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;

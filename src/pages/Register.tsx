@@ -6,15 +6,18 @@ import { FormField } from '@/components/FormField';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth';
 import { fieldError, getErrorMessage, getFieldErrors } from '@/lib/formErrors';
-import { register } from '@/services/auth';
 import type { FieldErrors } from '@/services/http';
 
+/** Caracteres aceitos no nome de usuário, conforme o backend valida. */
+const USERNAME_HINT = 'Use letras, números e @ . + - _';
+
 /**
- * Tela de cadastro (M13). Usuário, e-mail, senha e confirmação. Ao concluir,
- * leva ao login com um toast de sucesso. Exibe os erros da API por campo.
+ * Tela de cadastro (M13). Usuário, e-mail, senha e confirmação. O backend já
+ * devolve os tokens no cadastro, então o usuário fica logado e vai direto para
+ * a home, sem passar pela tela de login. Exibe os erros da API por campo.
  */
 export default function Register() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, register } = useAuth();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState('');
@@ -50,16 +53,14 @@ export default function Register() {
 
     setSubmitting(true);
     try {
+      // register já autentica: o useEffect acima leva à home quando a sessão
+      // fica disponível. Não passamos mais pela tela de login.
       await register({
         username: username.trim(),
         email: email.trim(),
         password,
         password2,
       });
-      toast.success('Conta criada. Faça login para continuar.', {
-        duration: 2000,
-      });
-      navigate('/login', { replace: true });
     } catch (err) {
       setErrors(getFieldErrors(err));
       toast.error(getErrorMessage(err, 'Não foi possível criar a conta.'));
@@ -90,6 +91,7 @@ export default function Register() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           error={fieldError(errors, 'username')}
+          hint={USERNAME_HINT}
         />
         <FormField
           label="E-mail"

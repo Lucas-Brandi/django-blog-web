@@ -20,11 +20,18 @@ export interface RegisterPayload {
   password2: string;
 }
 
-/** Resposta do cadastro: dados básicos do usuário criado. */
+/**
+ * Resposta do cadastro. O backend já autentica no ato: devolve o par de tokens
+ * (como o login) mais os dados básicos do usuário criado.
+ */
 export interface RegisterResponse {
-  id: number;
-  username: string;
-  email: string;
+  access: string;
+  refresh: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+  };
 }
 
 /** Pedido de redefinição de senha. */
